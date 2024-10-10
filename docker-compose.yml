@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fxdeals
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
+    ports:
+      - "3307:3306"  # Mapping port 3307 on the host to port 3306 in the container
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d/  # Mount the folder containing init.sql
+      - mysql-data:/var/lib/mysql  # Persist MySQL data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy  # Wait for MySQL to be healthy before starting
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/fxdeals
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: userpassword
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:

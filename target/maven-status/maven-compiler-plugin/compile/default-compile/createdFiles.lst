@@ -1,0 +1,6 @@
+com\progressSoft\fxdeals\repository\DealRepository.class
+com\progressSoft\fxdeals\service\DealValidationService.class
+com\progressSoft\fxdeals\controller\DealController.class
+com\progressSoft\fxdeals\exception\ValidationException.class
+com\progressSoft\fxdeals\model\Deal.class
+com\progressSoft\fxdeals\FxDealsApplication.class
