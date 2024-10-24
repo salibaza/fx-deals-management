@@ -1,35 +1,42 @@
 package com.progressSoft.fxdeals.service;
 
-import com.progressSoft.fxdeals.exception.ValidationException;
+import com.progressSoft.fxdeals.exception.DealValidationException;
 import com.progressSoft.fxdeals.model.Deal;
-import com.progressSoft.fxdeals.repository.DealRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class DealValidationServiceTest {
 
     private DealValidationService dealValidationService;
-    private DealRepository dealRepository;
+    private CurrencyValidationService currencyValidationService;
 
     @BeforeEach
     void setUp() {
-        dealRepository = Mockito.mock(DealRepository.class);
-        dealValidationService = new DealValidationService(dealRepository);
+        currencyValidationService = Mockito.mock(CurrencyValidationService.class);
+        dealValidationService = new DealValidationService(currencyValidationService);
     }
 
     @Test
     void shouldPassValidationForValidDeal() {
         Deal validDeal = createValidDeal();
 
-        // Simulate that there is no existing deal with the same unique ID
-        Mockito.when(dealRepository.existsByUniqueId(validDeal.getUniqueId())).thenReturn(false);
+        // Simulate that the currency codes are valid
+        doNothing().when(currencyValidationService).validateCurrencyCode("USD", "From");
+        doNothing().when(currencyValidationService).validateCurrencyCode("EUR", "To");
 
         // No exception should be thrown
         assertDoesNotThrow(() -> dealValidationService.validateDeal(validDeal));
+
+        // Verify that currency validation is called correctly
+        verify(currencyValidationService).validateCurrencyCode("USD", "From");
+        verify(currencyValidationService).validateCurrencyCode("EUR", "To");
     }
 
     @Test
@@ -37,41 +44,19 @@ class DealValidationServiceTest {
         Deal invalidDeal = createValidDeal();
         invalidDeal.setUniqueId(null);  // Set invalid unique ID
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> dealValidationService.validateDeal(invalidDeal));
+        DealValidationException exception = assertThrows(DealValidationException.class, () -> dealValidationService.validateDeal(invalidDeal));
 
         assertEquals("Deal Unique ID is required.", exception.getMessage());
     }
 
     @Test
-    void shouldThrowExceptionForDuplicateUniqueId() {
-        Deal validDeal = createValidDeal();
-
-        // Simulate that a deal with the same unique ID already exists
-        Mockito.when(dealRepository.existsByUniqueId(validDeal.getUniqueId())).thenReturn(true);
-
-        ValidationException exception = assertThrows(ValidationException.class, () -> dealValidationService.validateDeal(validDeal));
-
-        assertEquals("A deal with this unique ID already exists.", exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionForInvalidFromCurrencyCodeFormat() {
+    void shouldThrowExceptionForInvalidDealAmount() {
         Deal invalidDeal = createValidDeal();
-        invalidDeal.setFromCurrency("US");  // Invalid currency code (should be 3 letters)
+        invalidDeal.setDealAmount(BigDecimal.valueOf(-100.00));  // Invalid deal amount (negative value)
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> dealValidationService.validateDeal(invalidDeal));
+        DealValidationException exception = assertThrows(DealValidationException.class, () -> dealValidationService.validateDeal(invalidDeal));
 
-        assertEquals("Invalid From Currency format. Must be a 3-letter ISO code.", exception.getMessage());
-    }
-
-    @Test
-    void shouldThrowExceptionForInvalidToCurrencyCodeFormat() {
-        Deal invalidDeal = createValidDeal();
-        invalidDeal.setToCurrency("EURA");  // Invalid currency code (should be exactly 3 letters)
-
-        ValidationException exception = assertThrows(ValidationException.class, () -> dealValidationService.validateDeal(invalidDeal));
-
-        assertEquals("Invalid To Currency format. Must be a 3-letter ISO code.", exception.getMessage());
+        assertEquals("Deal Amount is required and must be a positive number.", exception.getMessage());
     }
 
     // Helper method to create a valid deal

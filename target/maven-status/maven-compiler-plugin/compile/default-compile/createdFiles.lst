@@ -1,6 +1,10 @@
+com\progressSoft\fxdeals\exception\GlobalExceptionHandler.class
 com\progressSoft\fxdeals\repository\DealRepository.class
 com\progressSoft\fxdeals\service\DealValidationService.class
 com\progressSoft\fxdeals\controller\DealController.class
-com\progressSoft\fxdeals\exception\ValidationException.class
+com\progressSoft\fxdeals\exception\RetrievalException.class
+com\progressSoft\fxdeals\service\DealProcessingService.class
 com\progressSoft\fxdeals\model\Deal.class
+com\progressSoft\fxdeals\service\CurrencyValidationService.class
+com\progressSoft\fxdeals\exception\DealValidationException.class
 com\progressSoft\fxdeals\FxDealsApplication.class

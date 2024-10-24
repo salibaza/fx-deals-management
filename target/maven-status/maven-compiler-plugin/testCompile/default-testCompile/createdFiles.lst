@@ -1,5 +1,10 @@
-com\progressSoft\fxdeals\controller\DealControllerIntegrationTest$1.class
-com\progressSoft\fxdeals\controller\DealControllerIntegrationTest.class
 com\progressSoft\fxdeals\service\DealValidationServiceTest.class
+com\progressSoft\fxdeals\service\DealProcessingServiceTest.class
 com\progressSoft\fxdeals\controller\DealControllerTest.class
 com\progressSoft\fxdeals\controller\DealControllerErrorHandlingTest.class
+com\progressSoft\fxdeals\controller\DealControllerIntegrationTest$1.class
+com\progressSoft\fxdeals\controller\DealControllerRetrievalTest.class
+com\progressSoft\fxdeals\controller\DealControllerIntegrationTest.class
+com\progressSoft\fxdeals\service\CurrencyValidationServiceTest.class
+com\progressSoft\fxdeals\exception\GlobalExceptionHandlerTest.class
+com\progressSoft\fxdeals\controller\DealControllerIntegrationTest$2.class

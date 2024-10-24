@@ -15,16 +15,16 @@
     },
     {
         "uniqueId": "deal125",
-        "fromCurrency": "JPY",
-        "toCurrency": "EUR",
-        "dealTimestamp": "2024-10-09T08:15:00",
-        "dealAmount": 300.75
-    },
-    {
-        "uniqueId": "deal126",
         "fromCurrency": "USD",
         "toCurrency": "ABC",
         "dealTimestamp": "2024-10-12T18:45:00",
         "dealAmount": 1500.00
+    },
+    {
+        "uniqueId": "deal126",
+        "fromCurrency": "JPY",
+        "toCurrency": "EUR",
+        "dealTimestamp": "2024-10-09T08:15:00",
+        "dealAmount": 300.75
     }
 ]

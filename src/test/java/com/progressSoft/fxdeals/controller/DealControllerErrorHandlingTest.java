@@ -1,45 +1,50 @@
 package com.progressSoft.fxdeals.controller;
 
-import com.progressSoft.fxdeals.exception.ValidationException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.progressSoft.fxdeals.model.Deal;
-import com.progressSoft.fxdeals.repository.DealRepository;
-import com.progressSoft.fxdeals.service.DealValidationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SpringBootTest
+@AutoConfigureMockMvc
 class DealControllerErrorHandlingTest {
 
-    private DealController dealController;
-    private DealRepository dealRepository;
-    private DealValidationService dealValidationService;
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private Deal invalidDeal;
 
     @BeforeEach
     void setUp() {
-        dealRepository = Mockito.mock(DealRepository.class);
-        dealValidationService = Mockito.mock(DealValidationService.class);
-        dealController = new DealController(dealRepository, dealValidationService);
+        invalidDeal = createInvalidDeal();
     }
 
     @Test
-    void shouldHandleValidationException() {
-        Deal invalidDeal = createInvalidDeal();
+    void shouldHandleValidationException() throws Exception {
+        // Convert the invalid deal to JSON
+        String invalidDealJson = objectMapper.writeValueAsString(Collections.singletonList(invalidDeal));
 
-        // Simulate a validation exception
-        doThrow(new ValidationException("Invalid Currency")).when(dealValidationService).validateDeal(invalidDeal);
-
-        ResponseEntity<String> response = dealController.addDeals(Collections.singletonList(invalidDeal));
-
-        verify(dealRepository, never()).save(any(Deal.class));  // Ensure that the deal is not saved
-        assertTrue(response.getBody().contains("Error processing Deal with UniqueId 123: Invalid Currency"));
+        // Perform the POST request using MockMvc
+        mockMvc.perform(post("/api/deals")
+                        .contentType("application/json")
+                        .content(invalidDealJson))
+                .andExpect(status().isBadRequest())  // Expecting 400 Bad Request
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Invalid To Currency")));  // Check specific error message
     }
 
     private Deal createInvalidDeal() {
